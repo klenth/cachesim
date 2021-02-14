@@ -2,6 +2,7 @@ package edu.westminstercollege.cmpt328.cachesim;
 
 enum PoolInfo {
 
+    initMemorySystem("initMemorySystem", "(Ljava/lang/Class;)V"),
     loadLocal("loadLocal", "(II)V"),
     storeLocal("storeLoad", "(II)V"),
     enterMethod("enterMethod", "(I)V"),

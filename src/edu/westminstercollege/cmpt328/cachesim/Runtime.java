@@ -1,5 +1,8 @@
 package edu.westminstercollege.cmpt328.cachesim;
 
+import edu.westminstercollege.cmpt328.cachesim.annotations.*;
+import edu.westminstercollege.cmpt328.cachesim.annotations.Memory;
+import edu.westminstercollege.cmpt328.cachesim.annotations.Cache;
 import edu.westminstercollege.cmpt328.memory.*;
 
 import java.util.*;
@@ -13,10 +16,8 @@ public final class Runtime {
     private Runtime() { }
 
     private static MemorySystem system() {
-        if (sys == null) {
-            sys = new MemorySystem.MicroCoreI7();
-        }
-
+        if (sys == null)
+            throw new RuntimeException("No memory system has been configured. (Does your main class have @Memory?)");
         return sys;
     }
 
@@ -24,6 +25,40 @@ public final class Runtime {
 
     public static void viewStatistics() {
         system().viewStatistics();
+    }
+
+    public static void initMemorySystem(Class<?> initialClass) {
+        Memory config = initialClass.getAnnotation(Memory.class);
+        if (config == null)
+            throw new RuntimeException("Class " + initialClass.getName() + " missing @Memory annotation");
+        MainMemory ram = new MainMemory(config.ram().name(), config.ram().size(), config.ram().accessTime());
+        edu.westminstercollege.cmpt328.memory.Memory top = ram;
+        for (Cache cache : config.caches()) {
+            edu.westminstercollege.cmpt328.memory.Cache.Builder builder = edu.westminstercollege.cmpt328.memory.Cache.builder();
+            builder.name(cache.name());
+            builder.accessTime(cache.accessTime());
+            builder.lineCount(cache.lines());
+
+            if (cache.mapping() == MappingAlgorithm.Direct)
+                builder.directMapping();
+            else if (cache.mapping() == MappingAlgorithm.FullyAssociative)
+                builder.fullyAssociative(cache.replacement());
+            else if (cache.mapping() == MappingAlgorithm.SetAssociative) {
+                if (cache.ways() == Cache.Unspecified)
+                    throw new RuntimeException(String.format("Cache %s: for set associative mapping, must specify number of ways (e.g. ways = 4)", cache.name()));
+                builder.setAssociative(cache.ways(), cache.replacement());
+            }
+
+            if (cache.accessTime() > top.getAccessTime())
+                System.err.printf("Warning: cache %s has an access time of %d cycles, which is higher than the memory below it (%s, access time %d cycles).\nMake sure your caches are in order from lowest (closest to RAM) to highest (closest to CPU)!",
+                        cache.name(), cache.accessTime(), top.getName(), cache.accessTime());
+
+            builder.drawingFrom(top);
+
+            top = builder.build();
+        }
+
+        sys = new MemorySystem(top);
     }
 
     public static void enterMethod(int locals) {

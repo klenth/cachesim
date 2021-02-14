@@ -2,6 +2,7 @@ package edu.westminstercollege.cmpt328.cachesim;
 
 import java.util.*;
 
+import edu.westminstercollege.cmpt328.cachesim.annotations.Memory;
 import edu.westminstercollege.cmpt328.cachesim.annotations.MemoryAware;
 import javassist.bytecode.*;
 
@@ -12,17 +13,20 @@ public class BytecodeRewriter {
 
     private int runtimePoolIndex;
     private EnumMap<PoolInfo, Integer> methodrefIndices = new EnumMap<>(PoolInfo.class);
+    private boolean hasAnnotation = false;
+    private boolean hasMemoryAnnotation = false;
 
     private ClassFile classFile;
 
     public BytecodeRewriter(ClassFile classFile) {
         this.classFile = classFile;
 
-        boolean hasAnnotation = false;
         AnnotationsAttribute annotationInfo = (AnnotationsAttribute)classFile.getAttribute(AnnotationsAttribute.visibleTag);
         if (annotationInfo != null) {
             if (annotationInfo.getAnnotation(MemoryAware.class.getName()) != null)
                 hasAnnotation = true;
+            if (annotationInfo.getAnnotation(Memory.class.getName()) != null)
+                hasAnnotation = hasMemoryAnnotation = true;
         }
 
         if (!hasAnnotation)
@@ -226,6 +230,12 @@ public class BytecodeRewriter {
             wide = opcode == WIDE;
         }
 
+        if (hasMemoryAnnotation
+                && method.getName().equals("main")
+                && method.getDescriptor().equals("([Ljava/lang/String;)V")
+                && (method.getAccessFlags() & AccessFlag.STATIC) != 0)
+            insertMemorySystemHook(method);
+
         try {
             code.computeMaxStack();
         } catch (BadBytecode bbc) {
@@ -233,6 +243,18 @@ public class BytecodeRewriter {
             bbc.printStackTrace();
             System.err.println();
         }
+    }
+
+    private void insertMemorySystemHook(MethodInfo method) throws BadBytecode {
+        int classInfoIndex = classFile.getConstPool().addClassInfo(classFile.getName());
+        CodeAttribute code = method.getCodeAttribute();
+        CodeIterator it = code.iterator();
+        it.insert(0, bytes()
+                .u8(LDC_W)
+                .u16(classInfoIndex)
+                .u8(INVOKESTATIC)
+                .u16(getMethodrefIndex(initMemorySystem))
+        .build());
     }
 
     private int getMethodrefIndex(PoolInfo pi) {

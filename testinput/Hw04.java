@@ -4,9 +4,8 @@ import edu.westminstercollege.cmpt328.cachesim.annotations.*;
 @MemoryAware
 @Memory(
     ram = @RAM(
-        name = "Main memory",
         accessTime = 200
-    ),
+    )/*
     caches = {
         @Cache(
             name = "L3",
@@ -28,7 +27,7 @@ import edu.westminstercollege.cmpt328.cachesim.annotations.*;
             lines = 8,
             mapping = MappingAlgorithm.Direct
         )
-    }
+    }*/
 )
 public class Hw04 {
 
@@ -40,7 +39,7 @@ public class Hw04 {
         // Fill the array with data and sort it. Keep track of the total system memory access
         // time so we can see how many cycles of memory access were needed.
         fillArray(data);
-        quickSort(data);
+        insertionSort(data);
         
         // Print the data out so you can confirm that it is sorted
         System.out.println("After sort:");

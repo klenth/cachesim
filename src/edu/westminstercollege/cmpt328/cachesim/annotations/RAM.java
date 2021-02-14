@@ -1,5 +1,7 @@
 package edu.westminstercollege.cmpt328.cachesim.annotations;
 
+import edu.westminstercollege.cmpt328.memory.Bits;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,7 +13,7 @@ public @interface RAM {
 
     int accessTime();
 
-    long size() default -1L;
+    int size() default Bits.NUM_ADDRESSES;
 
     String name() default "RAM";
 }
