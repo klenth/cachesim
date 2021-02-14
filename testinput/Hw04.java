@@ -1,5 +1,35 @@
 import java.util.Random;
+import edu.westminstercollege.cmpt328.cachesim.annotations.*;
 
+@MemoryAware
+@Memory(
+    ram = @RAM(
+        name = "Main memory",
+        accessTime = 200
+    ),
+    caches = {
+        @Cache(
+            name = "L3",
+            accessTime = 80,
+            lines = 64,
+            mapping = MappingAlgorithm.SetAssociative,
+            ways = 4
+        ),
+        @Cache(
+            name = "L2",
+            accessTime = 42,
+            lines = 16,
+            mapping = MappingAlgorithm.SetAssociative,
+            ways = 4
+        ),
+        @Cache(
+            name = "L1",
+            accessTime = 20,
+            lines = 8,
+            mapping = MappingAlgorithm.Direct
+        )
+    }
+)
 public class Hw04 {
 
     static double[] data;

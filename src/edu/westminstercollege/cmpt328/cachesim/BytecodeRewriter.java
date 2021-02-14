@@ -1,6 +1,8 @@
 package edu.westminstercollege.cmpt328.cachesim;
 
 import java.util.*;
+
+import edu.westminstercollege.cmpt328.cachesim.annotations.MemoryAware;
 import javassist.bytecode.*;
 
 import static javassist.bytecode.Opcode.*;
@@ -15,6 +17,17 @@ public class BytecodeRewriter {
 
     public BytecodeRewriter(ClassFile classFile) {
         this.classFile = classFile;
+
+        boolean hasAnnotation = false;
+        AnnotationsAttribute annotationInfo = (AnnotationsAttribute)classFile.getAttribute(AnnotationsAttribute.visibleTag);
+        if (annotationInfo != null) {
+            if (annotationInfo.getAnnotation(MemoryAware.class.getName()) != null)
+                hasAnnotation = true;
+        }
+
+        if (!hasAnnotation)
+            System.err.printf("Warning: class %s does not have @MemoryAware annotation\n", classFile.getName());
+
         Class<?> runtimeClass = edu.westminstercollege.cmpt328.cachesim.Runtime.class;
         runtimePoolIndex = classFile.getConstPool().addClassInfo(runtimeClass.getName());
     }
