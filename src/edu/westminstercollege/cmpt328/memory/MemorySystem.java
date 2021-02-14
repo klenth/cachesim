@@ -1,5 +1,7 @@
 package edu.westminstercollege.cmpt328.memory;
 
+import edu.westminstercollege.cmpt328.memory.gui.MemoryStatisticsView;
+
 import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.util.LinkedList;
@@ -106,6 +108,8 @@ public class MemorySystem {
             alignedIntSize = alignedSize(Bits.INT_SIZE),
             alignedDoubleSize = alignedSize(Bits.DOUBLE_SIZE),
             alignedPointerSize = alignedSize(Bits.POINTER_SIZE);
+
+    private static MemoryStatisticsView view = null;
 
     private static MemorySystem def = null;
 
@@ -262,6 +266,18 @@ public class MemorySystem {
         return top.getPointer(stackPtr);
     }
 
+    public StackFrame allocateStackFrame(int bytes) throws MemoryExhaustedException {
+        bytes = alignedSize(bytes);
+        stackPtr -= bytes;
+        checkMemoryExhausted();
+        StackFrame frame = new StackFrame(stackPtr, bytes);
+        return frame;
+    }
+
+    public void deallocateStackFrame(StackFrame frame) {
+        stackPtr += frame.getMemorySize();
+    }
+
     public ByteValue getByteAt(int address) {
         return top.getByte(address);
     }
@@ -403,6 +419,16 @@ public class MemorySystem {
         PrintWriter out = new PrintWriter(System.out);
         printStatistics(out);
         out.flush();
+    }
+
+    /**
+     * Displays a window showing statistical information on the use of this memory system, including the hit ratio and
+     * total access time at each level of memory.
+     */
+    public void viewStatistics() {
+        if (view == null)
+            view = new MemoryStatisticsView();
+        view.showWindow(top);
     }
 
     private String scientificNotation(long n) {

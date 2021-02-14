@@ -4,6 +4,8 @@ enum PoolInfo {
 
     loadLocal("loadLocal", "(II)V"),
     storeLocal("storeLoad", "(II)V"),
+    enterMethod("enterMethod", "(I)V"),
+    leaveMethod("leaveMethod", "()V"),
     allocateArray("allocateArray", "(Ljava/lang/Object;)V"),
     loadFromArray("loadFromArray", "(Ljava/lang/Object;I)V"),
     storeToArrayB("storeToArray", "([BIB)V"),

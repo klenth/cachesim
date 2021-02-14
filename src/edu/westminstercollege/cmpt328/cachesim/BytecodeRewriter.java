@@ -30,12 +30,24 @@ public class BytecodeRewriter {
         CodeAttribute code = method.getCodeAttribute();
         CodeIterator it = code.iterator();
 
+        insertEnterMethod(it, 0, code.getMaxLocals());
+
         boolean wide = false;
         while (it.hasNext()) {
             int index = it.next();
             int opcode = it.byteAt(index);
 
             switch (opcode) {
+                // ---- Leaving the method ----
+                case ARETURN:
+                case DRETURN:
+                case FRETURN:
+                case IRETURN:
+                case LRETURN:
+                case RETURN:
+                    insertLeaveMethod(it, index);
+                    break;
+
                 // ---- Array loads ----
                 case AALOAD:
                 case BALOAD:
@@ -213,6 +225,22 @@ public class BytecodeRewriter {
     private int getMethodrefIndex(PoolInfo pi) {
         return methodrefIndices.computeIfAbsent(pi, p ->
                 classFile.getConstPool().addMethodrefInfo(runtimePoolIndex, p.name, p.descriptor));
+    }
+
+    private void insertEnterMethod(CodeIterator it, int index, int numLocals) throws BadBytecode {
+        it.insert(index, bytes()
+            .u8(BIPUSH)
+            .u8(numLocals)
+            .u8(INVOKESTATIC)
+            .u16(getMethodrefIndex(enterMethod))
+        .build());
+    }
+
+    private void insertLeaveMethod(CodeIterator it, int index) throws BadBytecode {
+        it.insert(index, bytes()
+            .u8(INVOKESTATIC)
+            .u16(getMethodrefIndex(leaveMethod))
+        .build());
     }
 
     private void insertLoadFromArray(CodeIterator it, int index) throws BadBytecode {

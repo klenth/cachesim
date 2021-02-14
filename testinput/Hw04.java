@@ -10,13 +10,14 @@ public class Hw04 {
         // Fill the array with data and sort it. Keep track of the total system memory access
         // time so we can see how many cycles of memory access were needed.
         fillArray(data);
-        insertionSort(data);
+        quickSort(data);
         
         // Print the data out so you can confirm that it is sorted
         System.out.println("After sort:");
         printArray(data);
         System.out.println();
-        
+
+        edu.westminstercollege.cmpt328.cachesim.Runtime.viewStatistics();
     }
     
     // Rewrite this code to use the MemorySystem (you can leave the Random alone)
