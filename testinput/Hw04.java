@@ -5,7 +5,7 @@ import edu.westminstercollege.cmpt328.cachesim.annotations.*;
 @Memory(
     ram = @RAM(
         accessTime = 200
-    )/*
+    ),
     caches = {
         @Cache(
             name = "L3",
@@ -27,7 +27,7 @@ import edu.westminstercollege.cmpt328.cachesim.annotations.*;
             lines = 8,
             mapping = MappingAlgorithm.Direct
         )
-    }*/
+    }
 )
 public class Hw04 {
 

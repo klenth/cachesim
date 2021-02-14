@@ -12,6 +12,7 @@ import javax.swing.table.TableCellRenderer;
 public class MemoryStatisticsView extends JComponent {
 
     private JTable table;
+    private JLabel totalAccessTimeLabel;
     private JComponent controlPanel = new JPanel();
     private JButton closeButton = new JButton("Close");
 
@@ -34,7 +35,14 @@ public class MemoryStatisticsView extends JComponent {
         table = new JTable(tableModel);
 
         setLayout(new BorderLayout());
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        JPanel center = new JPanel();
+        center.setLayout(new BorderLayout());
+        center.add(new JScrollPane(table), BorderLayout.CENTER);
+        totalAccessTimeLabel = new JLabel();
+        center.add(totalAccessTimeLabel, BorderLayout.SOUTH);
+        totalAccessTimeLabel.setHorizontalAlignment(JLabel.TRAILING);
+
+        add(center, BorderLayout.CENTER);
 
         controlPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
         controlPanel.add(closeButton);
@@ -66,6 +74,7 @@ public class MemoryStatisticsView extends JComponent {
 
     public void showWindow(Memory top) {
         tableModel.setTopMemory(top);
+        totalAccessTimeLabel.setText(String.format("Total access time: %,d cycles", top.getTotalAccessTime()));
 
         if (frame == null) {
             frame = new JFrame("Memory statistics");
