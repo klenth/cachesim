@@ -1,0 +1,5 @@
+Manifest-Version: 1.0.0
+Premain-Class: edu.westminstercollege.cmpt328.cachesim.agent.Agent
+Can-Redefine-Classes: true
+Can-Retransform-Classes: true
+

@@ -28,15 +28,20 @@ public class BytecodeRewriter {
             if (annotationInfo.getAnnotation(Memory.class.getName()) != null)
                 hasAnnotation = hasMemoryAnnotation = true;
         }
+    }
 
-        if (!hasAnnotation)
-            System.err.printf("Warning: class %s does not have @MemoryAware annotation\n", classFile.getName());
-
-        Class<?> runtimeClass = edu.westminstercollege.cmpt328.cachesim.Runtime.class;
-        runtimePoolIndex = classFile.getConstPool().addClassInfo(runtimeClass.getName());
+    public static Optional<ClassFile> rewriteIfAware(ClassFile classFile) throws BadBytecode {
+        BytecodeRewriter rewriter = new BytecodeRewriter(classFile);
+        if (rewriter.hasAnnotation)
+            return Optional.of(rewriter.rewrite());
+        else
+            return Optional.empty();
     }
 
     public ClassFile rewrite() throws BadBytecode {
+        Class<?> runtimeClass = edu.westminstercollege.cmpt328.cachesim.Runtime.class;
+        runtimePoolIndex = classFile.getConstPool().addClassInfo(runtimeClass.getName());
+
         for (MethodInfo method : classFile.getMethods())
             rewrite(method);
 
