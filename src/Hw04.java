@@ -35,7 +35,6 @@ public class Hw04 {
 
     public static void main(String... args) {
         double[] data = new double[1000];
-        String[] s = new String[25];
         // Fill the array with data and sort it. Keep track of the total system memory access
         // time so we can see how many cycles of memory access were needed.
         fillArray(data);
@@ -51,6 +50,7 @@ public class Hw04 {
     
     // Rewrite this code to use the MemorySystem (you can leave the Random alone)
     // (int variables should become IntValues, double[] becomes DoubleArrayValue, etc.)
+    @MemoryExempt
     private static void fillArray(double[] data) {
         // Don't forget to use sys.allocateXxx() to allocate local variables!
         int i;
@@ -61,6 +61,7 @@ public class Hw04 {
     
     // Rewrite this code to use the MemorySystem
     // (int variables should become IntValues, double[] becomes DoubleArrayValue, etc.)
+    @MemoryExempt
     private static void printArray(double[] data) {
         // Don't forget to use sys.allocateXxx() to allocate local variables!
         int i;

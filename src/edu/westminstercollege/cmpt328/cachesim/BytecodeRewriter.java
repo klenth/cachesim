@@ -4,6 +4,7 @@ import java.util.*;
 
 import edu.westminstercollege.cmpt328.cachesim.annotations.Memory;
 import edu.westminstercollege.cmpt328.cachesim.annotations.MemoryAware;
+import edu.westminstercollege.cmpt328.cachesim.annotations.MemoryExempt;
 import javassist.bytecode.*;
 
 import static javassist.bytecode.Opcode.*;
@@ -49,6 +50,11 @@ public class BytecodeRewriter {
     }
 
     void rewrite(MethodInfo method) throws BadBytecode {
+        AnnotationsAttribute annotationInfo = (AnnotationsAttribute)method.getAttribute(AnnotationsAttribute.visibleTag);
+        if (annotationInfo != null
+                && annotationInfo.getAnnotation(MemoryExempt.class.getName()) != null)
+            return;
+
         CodeAttribute code = method.getCodeAttribute();
         CodeIterator it = code.iterator();
 
