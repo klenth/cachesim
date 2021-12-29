@@ -17,7 +17,7 @@ public final class Runtime {
 
     private static MemorySystem system() {
         if (sys == null)
-            throw new RuntimeException("No memory system has been configured. (Does your main class have @Memory?)");
+            throw new RuntimeException("No memory system has been configured. (Does your main class have @Memory? Is the program run with -javaagent?)");
         return sys;
     }
 
