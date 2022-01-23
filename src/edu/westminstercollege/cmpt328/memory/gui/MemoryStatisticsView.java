@@ -75,9 +75,12 @@ public class MemoryStatisticsView extends JComponent {
     public void showWindow(Memory top) {
         tableModel.setTopMemory(top);
         totalAccessTimeLabel.setText(String.format("Total access time: %,d cycles", top.getTotalAccessTime()));
+        Font f = totalAccessTimeLabel.getFont();
+        totalAccessTimeLabel.setFont(f.deriveFont(Font.BOLD).deriveFont(f.getSize2D() * 1.5f));
 
         if (frame == null) {
             frame = new JFrame("Memory statistics");
+            ((JComponent)frame.getContentPane()).setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             frame.setLayout(new BorderLayout());
             frame.add(this, BorderLayout.CENTER);
 
@@ -87,7 +90,7 @@ public class MemoryStatisticsView extends JComponent {
         controlPanel.setVisible(true);
         frame.pack();
         Dimension size = frame.getSize();
-        size.width = Math.max(size.width, 700);
+        size.width = Math.max(size.width, 900);
         frame.setSize(size);
         frame.setVisible(true);
     }
