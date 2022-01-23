@@ -23,6 +23,18 @@ public enum Unit {
         return log2;
     }
 
+    public Unit larger() {
+        if (this == Yobibyte)
+            return null;
+        return Unit.values()[this.ordinal() + 1];
+    }
+
+    public Unit smaller() {
+        if (this == Byte)
+            return null;
+        return Unit.values()[this.ordinal() - 1];
+    }
+
     public static Unit forLog2(int log2) {
         if (log2 < 0)
             throw new IllegalArgumentException("log2 cannot be negative");

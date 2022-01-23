@@ -55,6 +55,12 @@ public class BytecodeRewriter {
                 && annotationInfo.getAnnotation(MemoryExempt.class.getName()) != null)
             return;
 
+        boolean isMainMethod =
+                hasAnnotation
+                && method.getName().equals("main")
+                && method.getDescriptor().equals("([Ljava/lang/String;)V")
+                && (method.getAccessFlags() & AccessFlag.STATIC) != 0;
+
         CodeAttribute code = method.getCodeAttribute();
         CodeIterator it = code.iterator();
 
@@ -73,6 +79,8 @@ public class BytecodeRewriter {
                 case IRETURN:
                 case LRETURN:
                 case RETURN:
+                    if (isMainMethod)
+                        insertViewStatistics(it, index);
                     insertLeaveMethod(it, index);
                     break;
 
@@ -241,10 +249,7 @@ public class BytecodeRewriter {
             wide = opcode == WIDE;
         }
 
-        if (hasMemoryAnnotation
-                && method.getName().equals("main")
-                && method.getDescriptor().equals("([Ljava/lang/String;)V")
-                && (method.getAccessFlags() & AccessFlag.STATIC) != 0)
+        if (isMainMethod)
             insertMemorySystemHook(method);
 
         try {
@@ -286,6 +291,13 @@ public class BytecodeRewriter {
         it.insert(index, bytes()
             .u8(INVOKESTATIC)
             .u16(getMethodrefIndex(leaveMethod))
+        .build());
+    }
+
+    private void insertViewStatistics(CodeIterator it, int index) throws BadBytecode {
+        it.insert(index, bytes()
+            .u8(INVOKESTATIC)
+            .u16(getMethodrefIndex(viewStatistics))
         .build());
     }
 

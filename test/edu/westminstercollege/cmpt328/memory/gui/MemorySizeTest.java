@@ -37,4 +37,18 @@ public class MemorySizeTest {
         assertEquals("84 kiB", new MemorySize(84, Kibibyte).toString());
         assertEquals("16 YiB", new MemorySize(16, Yobibyte).toString());
     }
+
+    @Test
+    public void testGeometricMean() {
+        assertEquals(MemorySize.of(1, Kibibyte), MemorySize.geometricMean(MemorySize.of(1, Byte), MemorySize.of(1, Mebibyte)));
+        assertEquals(MemorySize.of(2, Mebibyte), MemorySize.geometricMean(MemorySize.of(1, Kibibyte), MemorySize.of(4, Gibibyte)));
+    }
+
+    @Test
+    public void testAs() {
+        assertEquals(MemorySize.of(1, Kibibyte).as(Byte), 1024.0, 0.0);
+        assertEquals(MemorySize.of(5, Mebibyte).as(Byte), 5 * 1048576.0, 0.0);
+        assertEquals(MemorySize.of(5, Tebibyte).as(Mebibyte), 5 * 1048576.0, 0.0);
+        assertEquals(MemorySize.of(512, Byte).as(Kibibyte), 0.5, 0.0);
+    }
 }

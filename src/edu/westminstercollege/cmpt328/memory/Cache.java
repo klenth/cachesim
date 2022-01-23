@@ -89,8 +89,8 @@ public class Cache implements Memory {
 
         /** Specifies the number of lines (each of size {@link Bits#LINE_SIZE}); must be a power of 2 greater than 1 */
         public Builder lineCount(int lineCount) {
-            if (!Bits.isPowerOf2(lineCount))
-                throw new IllegalArgumentException("Line count must be a power of 2");
+            if (lineCount < 1)
+                throw new IllegalArgumentException("Line count must be at least 1");
             this.lineCount = lineCount;
             return this;
         }
@@ -115,8 +115,8 @@ public class Cache implements Memory {
         /** Specifies that the created {@link Cache} should use set-associative mapping; a {@link ReplacementAlgorithm}
          * must also be specified */
         public Builder setAssociative(int linesPerSet, ReplacementAlgorithm replacementAlgorithm) {
-            if (!Bits.isPowerOf2(linesPerSet))
-                throw new IllegalArgumentException("Lines per set must be a power of 2");
+            if (linesPerSet < 1)
+                throw new IllegalArgumentException("Lines per set must be positive");
             if (replacementAlgorithm == null)
                 throw new IllegalArgumentException("Replacement algorithm cannot be null");
             this.linesPerSet = linesPerSet;
@@ -144,6 +144,14 @@ public class Cache implements Memory {
                 throw new IllegalStateException("Must specify direct mapping, fully associative, or set associative");
             if (linesPerSet != 1 && replacementAlgorithm == null)
                 throw new IllegalStateException("Replacement algorithm must be specified for fully/set associative caches");
+
+            int sets = lineCount / linesPerSet;
+            if (sets * linesPerSet != lineCount)
+                throw new IllegalStateException("Lines per set (ways) must evenly divide the number of lines");
+            if (!Bits.isPowerOf2(sets))
+                throw new IllegalStateException(String.format("Number of %s must be a power of 2",
+                        linesPerSet == 1 ? "lines" : "sets"));
+
             return new Cache(this);
         }
     }

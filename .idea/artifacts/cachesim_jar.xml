@@ -4,6 +4,7 @@
     <root id="archive" name="cachesim.jar">
       <element id="module-output" name="cachesim" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/javassist.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/json.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

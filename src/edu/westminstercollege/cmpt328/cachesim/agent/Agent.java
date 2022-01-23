@@ -5,7 +5,7 @@ import java.lang.instrument.Instrumentation;
 public class Agent {
 
     public static void premain(String agentArgs, Instrumentation inst) {
-        System.out.println("premain()");
+        System.out.println("-=-=-=- [cachesim] Transforming bytecode -=-=-=-");
         inst.addTransformer(new Transformer());
     }
 }
