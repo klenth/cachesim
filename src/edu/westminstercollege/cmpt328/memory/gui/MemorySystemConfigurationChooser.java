@@ -21,6 +21,14 @@ public class MemorySystemConfigurationChooser extends JPanel {
         }
     }
 
+    static {
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private MemorySystemTable table = new MemorySystemTable();
     private JToolBar toolbar = new JToolBar(JToolBar.VERTICAL);
     private JFileChooser fileChooser;
