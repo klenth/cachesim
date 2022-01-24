@@ -7,6 +7,10 @@ import edu.westminstercollege.cmpt328.memory.*;
 import edu.westminstercollege.cmpt328.memory.gui.MemorySystemConfiguration;
 import edu.westminstercollege.cmpt328.memory.gui.MemorySystemConfigurationChooser;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.prefs.*;
+
 import java.util.*;
 
 public final class Runtime {
@@ -14,6 +18,8 @@ public final class Runtime {
     private static MemorySystem sys;
 
     private static Deque<StackFrame> stack = new LinkedList<>();
+
+    private static String PREFERENCES_KEY_MEMORY_SYSTEM_CONFIGURATION = "memorySystemConfiguration";
 
     private Runtime() { }
 
@@ -36,12 +42,16 @@ public final class Runtime {
         boolean configureInGui = initialClass.isAnnotationPresent(ConfigureMemoryInGui.class);
         //boolean configureInGui = initialClass.isAnnotationPresent(MemoryAware.class);
         if (!configureInGui && config == null)
-            throw new RuntimeException("Class " + initialClass.getName() + " missing @Memory annotation");
+            throw new RuntimeException("No memory configuration: class " + initialClass.getName() + " must either be marked with @ConfigureMemoryInGui or define a configuration in a @Memory annotation");
 
         if (configureInGui) {
             var chooser = new MemorySystemConfigurationChooser();
+            var savedConfig = loadMemorySystemConfigurationFromPreferences();
+            if (savedConfig != null)
+                chooser.setConfiguration(savedConfig);
             if (chooser.showDialog(null)) {
                 var configuration = chooser.getConfiguration();
+                saveMemorySystemConfigurationToPreferences(configuration);
                 sys = fromConfiguration(configuration);
             } else {
                 System.out.println("Memory system configuration cancelled — exiting");
@@ -77,6 +87,34 @@ public final class Runtime {
 
             sys = new MemorySystem(top);
         }
+    }
+
+    private static MemorySystemConfiguration loadMemorySystemConfigurationFromPreferences() {
+        Preferences p = Preferences.userNodeForPackage(Runtime.class);
+        String savedData = p.get(PREFERENCES_KEY_MEMORY_SYSTEM_CONFIGURATION, null);
+        if (savedData == null)
+            return null;
+        var reader = new StringReader(savedData);
+
+        try {
+            return MemorySystemConfiguration.loadJson(reader);
+        } catch (MemorySystemConfiguration.InvalidConfigurationException ex) {
+            System.err.println("Unable to load memory system configuration from preferences:");
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    private static void saveMemorySystemConfigurationToPreferences(MemorySystemConfiguration config) {
+        Preferences p = Preferences.userNodeForPackage(Runtime.class);
+        var out = new StringWriter();
+        config.saveJson(out);
+
+        String valueToSave = out.toString();
+        if (valueToSave.length() > Preferences.MAX_VALUE_LENGTH)
+            System.err.println("Unable to save memory system configuration to preferences: value too long!");
+        else
+            p.put(PREFERENCES_KEY_MEMORY_SYSTEM_CONFIGURATION, out.toString());
     }
 
     private static MemorySystem fromConfiguration(MemorySystemConfiguration config) {

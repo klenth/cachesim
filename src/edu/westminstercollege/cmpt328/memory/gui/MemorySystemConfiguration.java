@@ -9,9 +9,7 @@ import edu.westminstercollege.klenth.json.JsonArray;
 import edu.westminstercollege.klenth.json.JsonObject;
 import edu.westminstercollege.klenth.json.JsonParser;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -214,32 +212,37 @@ public class MemorySystemConfiguration {
         return Objects.hash(ramAccessTime, ramSize, Arrays.hashCode(caches));
     }
 
+    public void saveJson(Writer writer) {
+        PrintWriter out = (writer instanceof PrintWriter pw) ? pw : new PrintWriter(writer);
+        out.println("{");
+        out.println("\t\"ram\": {");
+        out.printf("\t\t\"size\": %d,\n", ramSize);
+        out.printf("\t\t\"accessTime\": %d\n", ramAccessTime);
+        out.println("\t},");
+        out.println("\t\"caches\": [");
+
+        for (int i = 0; i < caches.length; ++i) {
+            var cache = caches[i];
+            out.println("\t\t{");
+            out.printf("\t\t\t\"lines\": %d,\n", cache.getLineCount());
+            out.printf("\t\t\t\"accessTime\": %d,\n", cache.getAccessTime());
+            out.printf("\t\t\t\"ways\": %d", cache.getWays());
+            if (cache.getWays() > 1)
+                out.printf(",\n\t\t\t\"replacement\": \"%s\"", cache.getReplacement().toString());
+
+            if (i + 1 < caches.length)
+                out.println("\n\t\t},");
+            else
+                out.println("\n\t\t}");
+        }
+
+        out.println("\t]");
+        out.println("}");
+    }
+
     public void saveJson(Path path) throws IOException {
         try (PrintWriter out = new PrintWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8))) {
-            out.println("{");
-            out.println("\t\"ram\": {");
-            out.printf("\t\t\"size\": %d,\n", ramSize);
-            out.printf("\t\t\"accessTime\": %d\n", ramAccessTime);
-            out.println("\t},");
-            out.println("\t\"caches\": [");
-
-            for (int i = 0; i < caches.length; ++i) {
-                var cache = caches[i];
-                out.println("\t\t{");
-                out.printf("\t\t\t\"lines\": %d,\n", cache.getLineCount());
-                out.printf("\t\t\t\"accessTime\": %d,\n", cache.getAccessTime());
-                out.printf("\t\t\t\"ways\": %d", cache.getWays());
-                if (cache.getWays() > 1)
-                    out.printf(",\n\t\t\t\"replacement\": \"%s\"", cache.getReplacement().toString());
-
-                if (i + 1 < caches.length)
-                    out.println("\n\t\t},");
-                else
-                    out.println("\n\t\t}");
-            }
-
-            out.println("\t]");
-            out.println("}");
+            saveJson(out);
         }
     }
 
@@ -265,48 +268,48 @@ public class MemorySystemConfiguration {
         }
     }
 
-    public static MemorySystemConfiguration loadJson(Path path) throws IOException, InvalidConfigurationException {
-        try (BufferedReader in = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            var parser = new JsonParser(in);
+    public static MemorySystemConfiguration loadJson(Reader reader) throws InvalidConfigurationException {
+        try {
+            var parser = new JsonParser(reader);
             var value = parser.parseValue().get();
 
             if (!(value instanceof Map<?, ?>))
                 throw new InvalidConfigurationException("Unable to parse configuration: not a JSON object");
-            var object = (Map<String, Object>)value; //.get();
+            var object = (Map<String, Object>) value; //.get();
 
             var objectKeys = object.keySet();
             if (!(objectKeys.contains("ram")))
                 throw new InvalidConfigurationException("Unable to parse configuration: key 'ram' missing");
-            var ram = (Map<String, Object>)object.get("ram");
+            var ram = (Map<String, Object>) object.get("ram");
 
             var ramKeys = ram.keySet();
             if (!(ramKeys.contains("size")))
                 throw new InvalidConfigurationException("Unable to parse configuration: ram missing key 'size'");
-            int ramSize = ((Number)ram.get("size")).intValue();
+            int ramSize = ((Number) ram.get("size")).intValue();
 
             if (!(ramKeys.contains("accessTime")))
                 throw new InvalidConfigurationException("Unable to parse configuration: ram missing key 'ramAccessTime'");
-            int ramAccessTime = ((Number)ram.get("accessTime")).intValue();
+            int ramAccessTime = ((Number) ram.get("accessTime")).intValue();
 
             if (!(objectKeys.contains("caches")))
                 throw new InvalidConfigurationException("Unable to parse configuration: key 'caches' missing");
-            var caches = (List<Object>)object.get("caches");
+            var caches = (List<Object>) object.get("caches");
 
             CacheConfiguration[] parsedCaches = new CacheConfiguration[caches.size()];
             for (int i = 0; i < caches.size(); ++i) {
-                var cache = (Map<String, Object>)caches.get(i);
+                var cache = (Map<String, Object>) caches.get(i);
                 var cacheKeys = cache.keySet();
                 if (!(cacheKeys.contains("lines")))
                     throw new InvalidConfigurationException(String.format("Unable to parse configuration: cache #%d missing key 'lines'", i));
-                int lines = ((Number)cache.get("lines")).intValue();
+                int lines = ((Number) cache.get("lines")).intValue();
 
                 if (!(cacheKeys.contains("accessTime")))
                     throw new InvalidConfigurationException(String.format("Unable to parse configuration: cache %d missing key 'accessTime'", i));
-                int accessTime = ((Number)cache.get("accessTime")).intValue();
+                int accessTime = ((Number) cache.get("accessTime")).intValue();
 
                 if (!(cacheKeys.contains("ways")))
                     throw new InvalidConfigurationException(String.format("Unable to parse configuration: cache %d missing key 'ways'", i));
-                int ways = ((Number)cache.get("ways")).intValue();
+                int ways = ((Number) cache.get("ways")).intValue();
 
                 ReplacementAlgorithm replacement = ReplacementAlgorithm.LRU;
                 if (cacheKeys.contains("replacement"))
@@ -318,7 +321,17 @@ public class MemorySystemConfiguration {
             }
 
             return new MemorySystemConfiguration(ramSize, ramAccessTime, parsedCaches);
-        } catch (IOException e) {
+        } catch (InvalidConfigurationException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvalidConfigurationException("Unable to parse configuration", e);
+        }
+    }
+
+    public static MemorySystemConfiguration loadJson(Path path) throws IOException, InvalidConfigurationException {
+        try (BufferedReader in = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            return loadJson(in);
+        } catch (IOException | InvalidConfigurationException e) {
             throw e;
         } catch (Exception e) {
             throw new InvalidConfigurationException("Unable to parse configuration", e);
