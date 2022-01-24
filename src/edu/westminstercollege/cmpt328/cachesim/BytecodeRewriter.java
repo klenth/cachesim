@@ -237,12 +237,12 @@ public class BytecodeRewriter {
                     break;
 
                 case NEW:
-                    System.out.println("new");
+
                     // Do we need to do something here?
                     break;
 
                 case WIDE:
-                    System.out.println("wide");
+
                     break;
             }
 
