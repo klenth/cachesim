@@ -87,6 +87,8 @@ public final class Runtime {
 
             sys = new MemorySystem(top);
         }
+
+        MemorySystem.setDefault(sys);
     }
 
     private static MemorySystemConfiguration loadMemorySystemConfigurationFromPreferences() {
