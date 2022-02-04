@@ -214,7 +214,6 @@ public final class Runtime {
                 || array instanceof int[]
                 || array instanceof float[]
                 || array instanceof char[]
-                || array instanceof boolean[]
                 || array instanceof Object[])
             system().getIntAt(addr + 4 * index).get();
         else if (array instanceof long[]

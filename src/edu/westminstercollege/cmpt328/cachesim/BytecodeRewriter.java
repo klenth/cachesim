@@ -33,9 +33,10 @@ public class BytecodeRewriter {
 
     public static Optional<ClassFile> rewriteIfAware(ClassFile classFile) throws BadBytecode {
         BytecodeRewriter rewriter = new BytecodeRewriter(classFile);
-        if (rewriter.hasAnnotation)
+        if (rewriter.hasAnnotation) {
+            System.out.printf("-=-=-=- [cachesim] Rewriting class %s -=-=-=-\n", classFile.getName());
             return Optional.of(rewriter.rewrite());
-        else
+        } else
             return Optional.empty();
     }
 

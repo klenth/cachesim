@@ -592,9 +592,9 @@ public class Cache implements Memory {
     }
 
     /** In contrast to {@link #getTotalAccessTime()}, this method returns the total amount of access time at this level
-     * of cache only (i.e., number of hits * access time). */
+     * of cache only (i.e., number of accesses * access time). */
     public long getThisLevelAccessTime() {
-        return hits * accessTime;
+        return (hits + misses) * accessTime;
     }
 
     private String repeat(String s, int count) {
