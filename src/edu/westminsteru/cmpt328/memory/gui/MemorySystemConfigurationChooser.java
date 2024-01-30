@@ -44,7 +44,14 @@ public class MemorySystemConfigurationChooser extends JPanel {
         Icon loadIcon = new ImageIcon(getClass().getResource("/icon/bx-folder-open.png"));
         Icon saveIcon = new ImageIcon(getClass().getResource("/icon/bx-save.png"));
 
-        toolbar.add(new AbstractAction("Add memory", addIcon) {
+        abstract class ToolbarAction extends AbstractAction {
+            ToolbarAction(String name, Icon icon) {
+                super(name, icon);
+                putValue(Action.SHORT_DESCRIPTION, name);
+            }
+        }
+
+        toolbar.add(new ToolbarAction("Add cache", addIcon) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int selectedIndex = Math.max(0, table.getSelectedRow());
@@ -52,7 +59,7 @@ public class MemorySystemConfigurationChooser extends JPanel {
             }
         });
 
-        toolbar.add(new AbstractAction("Remove memory", removeIcon) {
+        toolbar.add(new ToolbarAction("Remove cache", removeIcon) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = table.getSelectedRow();
@@ -63,7 +70,7 @@ public class MemorySystemConfigurationChooser extends JPanel {
 
         toolbar.addSeparator();
 
-        toolbar.add(new AbstractAction("Load configuration", loadIcon) {
+        toolbar.add(new ToolbarAction("Load configuration", loadIcon) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -94,7 +101,7 @@ public class MemorySystemConfigurationChooser extends JPanel {
             }
         });
 
-        toolbar.add(new AbstractAction("Save configuration", saveIcon) {
+        toolbar.add(new ToolbarAction("Save configuration", saveIcon) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 var fileChooser = getConfigurationFileChooser();
