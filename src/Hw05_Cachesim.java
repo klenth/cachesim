@@ -1,4 +1,6 @@
-import edu.westminstercollege.cmpt328.cachesim.annotations.*;
+import edu.westminsteru.cmpt328.cachesim.Runtime;
+import edu.westminsteru.cmpt328.cachesim.annotations.*;
+
 import java.util.Random;
 
 // @Memory and child annotations defines the configuration of the memory system. This replaces all the
@@ -52,7 +54,7 @@ public class Hw05_Cachesim {
         System.out.println();
 
         // Display cache statistics
-        edu.westminstercollege.cmpt328.cachesim.Runtime.viewStatistics();
+        Runtime.viewStatistics();
     }
 
     // @MemoryExempt tells the cache simulation library not to track memory accesses in this method

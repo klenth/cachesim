@@ -1,0 +1,14 @@
+package edu.westminsteru.cmpt328.cachesim.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Memory {
+
+    RAM ram();
+    Cache[] caches() default {};
+}

@@ -1,5 +1,7 @@
 import java.util.Random;
-import edu.westminstercollege.cmpt328.cachesim.annotations.*;
+
+import edu.westminsteru.cmpt328.cachesim.Runtime;
+import edu.westminsteru.cmpt328.cachesim.annotations.*;
 
 @MemoryAware
 @Memory(
@@ -45,7 +47,7 @@ public class Hw04 {
         printArray(data);
         System.out.println();
 
-        edu.westminstercollege.cmpt328.cachesim.Runtime.viewStatistics();
+        Runtime.viewStatistics();
     }
     
     // Rewrite this code to use the MemorySystem (you can leave the Random alone)
