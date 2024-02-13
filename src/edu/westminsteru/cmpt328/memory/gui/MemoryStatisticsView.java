@@ -15,7 +15,7 @@ public class MemoryStatisticsView extends JComponent {
     private JButton closeButton = new JButton("Close");
 
     private MemoryStatisticsTableModel tableModel = new MemoryStatisticsTableModel();
-    private JFrame frame = null;
+    private JDialog dialog = null;
 
     private static Font MONO_FONT = null;
 
@@ -48,8 +48,8 @@ public class MemoryStatisticsView extends JComponent {
         controlPanel.setVisible(false);
 
         closeButton.addActionListener(e -> {
-            if (frame != null)
-                frame.dispose();
+            if (dialog != null)
+                dialog.dispose();
         });
 
         table.setDefaultRenderer(String.class, new BasicCellRenderer());
@@ -68,29 +68,30 @@ public class MemoryStatisticsView extends JComponent {
 
         Font headerFont = table.getTableHeader().getFont();
         table.getTableHeader().setFont(headerFont.deriveFont(16f));
+
+        Font f = totalAccessTimeLabel.getFont();
+        totalAccessTimeLabel.setFont(f.deriveFont(Font.BOLD).deriveFont(f.getSize2D() * 1.5f));
     }
 
     public void showWindow(Memory top) {
         tableModel.setTopMemory(top);
         totalAccessTimeLabel.setText(String.format("Total access time: %,d cycles", top.getTotalAccessTime()));
-        Font f = totalAccessTimeLabel.getFont();
-        totalAccessTimeLabel.setFont(f.deriveFont(Font.BOLD).deriveFont(f.getSize2D() * 1.5f));
 
-        if (frame == null) {
-            frame = new JFrame("Memory statistics");
-            ((JComponent)frame.getContentPane()).setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-            frame.setLayout(new BorderLayout());
-            frame.add(this, BorderLayout.CENTER);
+        if (dialog == null) {
+            dialog = new JDialog((Frame)null, "Memory statistics", true);
+            ((JComponent) dialog.getContentPane()).setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+            dialog.setLayout(new BorderLayout());
+            dialog.add(this, BorderLayout.CENTER);
 
-            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         }
 
         controlPanel.setVisible(true);
-        frame.pack();
-        Dimension size = frame.getSize();
+        dialog.pack();
+        Dimension size = dialog.getSize();
         size.width = Math.max(size.width, 900);
-        frame.setSize(size);
-        frame.setVisible(true);
+        dialog.setSize(size);
+        dialog.setVisible(true);
     }
 
     private String formatInteger(long value, int maxColumns) {

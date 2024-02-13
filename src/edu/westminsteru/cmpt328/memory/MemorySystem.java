@@ -406,6 +406,7 @@ public class MemorySystem {
             }
         }
 
+        out.printf("Total access time: %,d cycles\n", top.getTotalAccessTime());
         out.flush();
     }
 
