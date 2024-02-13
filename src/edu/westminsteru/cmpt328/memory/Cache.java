@@ -145,9 +145,14 @@ public class Cache implements Memory {
             if (linesPerSet != 1 && replacementAlgorithm == null)
                 throw new IllegalStateException("Replacement algorithm must be specified for fully/set associative caches");
 
+            if (linesPerSet == ALL_LINES)
+                linesPerSet = lineCount;
+
             int sets = lineCount / linesPerSet;
             if (sets * linesPerSet != lineCount)
-                throw new IllegalStateException("Lines per set (ways) must evenly divide the number of lines");
+                throw new IllegalStateException("Lines per set (associativity) must evenly divide the number of lines");
+            if (linesPerSet == 1 && !Bits.isPowerOf2(lineCount))
+                throw new IllegalStateException("In a direct-mapped cache, the number of lines must be a power of 2");
             if (!Bits.isPowerOf2(sets))
                 throw new IllegalStateException(String.format("Number of %s must be a power of 2",
                         linesPerSet == 1 ? "lines" : "sets"));

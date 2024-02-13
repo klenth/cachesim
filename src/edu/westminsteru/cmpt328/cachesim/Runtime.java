@@ -11,6 +11,7 @@ import edu.westminsteru.cmpt328.memory.gui.MemorySystemConfiguration;
 import edu.westminsteru.cmpt328.memory.gui.MemorySystemConfigurationChooser;
 import edu.westminsteru.cmpt328.cachesim.annotations.Cache;
 
+import javax.swing.*;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.prefs.*;
@@ -53,11 +54,21 @@ public final class Runtime {
             var savedConfig = loadMemorySystemConfigurationFromPreferences();
             if (savedConfig != null)
                 chooser.setConfiguration(savedConfig);
-            if (chooser.showDialog(null)) {
+            boolean accepted = false;
+            while (chooser.showDialog(null)) {
                 var configuration = chooser.getConfiguration();
                 saveMemorySystemConfigurationToPreferences(configuration);
-                sys = fromConfiguration(configuration);
-            } else {
+                try {
+                    sys = fromConfiguration(configuration);
+                    accepted = true;
+                    break;
+                } catch (IllegalStateException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Invalid memory configuration", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
+            if (!accepted) {
                 System.out.println("Memory system configuration cancelled — exiting");
                 System.exit(0);
             }
