@@ -219,6 +219,7 @@ public class MemorySystemConfiguration {
         for (int i = 0; i < caches.length; ++i) {
             var cache = caches[i];
             out.println("\t\t{");
+            out.printf("\t\t\t\"name\": \"L%d\",\n", i + 1);
             out.printf("\t\t\t\"lines\": %d,\n", cache.getLineCount());
             out.printf("\t\t\t\"accessTime\": %d,\n", cache.getAccessTime());
             out.printf("\t\t\t\"ways\": %d", cache.getWays());

@@ -139,7 +139,10 @@ public final class Runtime {
         edu.westminsteru.cmpt328.memory.Memory top = ram;
 
         int level = config.getCaches().size();
-        for (var cache : config.getCaches()) {
+        final var caches = config.getCaches();
+        for (int i = caches.size() - 1; i >= 0; --i) {
+        //for (var cache : config.getCaches().reversed()) {
+            var cache = caches.get(i);
             var builder = edu.westminsteru.cmpt328.memory.Cache.builder()
                     .name("L" + level)
                     .drawingFrom(top)
